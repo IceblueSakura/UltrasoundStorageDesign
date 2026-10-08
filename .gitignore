@@ -1,0 +1,33 @@
+# Build and environment artifacts
+build/
+result
+result-*
+.direnv/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Archived upstream repository (retains its own .git)
+/archive/hdf5/
+
+# Benchmark artifacts & caches
+*.h5
+*.hdf5
+results_*/
+benchmark_results/
+benchmark_results_*/
+/archive/benchmarks/ultrasound_storage_baseline/local_results/
+/archive/benchmarks/ultrasound_storage_baseline/small_write_batch_results/
+
+# New generated runs; future experiment source files are not ignored
+/experiments/runs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
