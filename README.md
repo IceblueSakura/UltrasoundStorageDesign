@@ -1,25 +1,28 @@
 # UltrasoundStorageDesign
 
-超声采集原始数据存储设计项目。当前为逻辑架构与数据 Spec `0.1-draft`，尚未实现生产 SDK、符合性检查器或完整样例。
+超声采集原始数据存储设计项目。当前处于**测试用例编写前的设计整合阶段**，数据 Spec 为 `0.2-draft`；设计语义、必要机制说明及验收素材均在项目内维护，尚未编写可执行用例或实现生产 SDK、检查器、H/P/F 样例。
 
-## 当前重点：扫描场景与算法需求审计
+## 当前重点：项目内一致的设计基线
 
-从实际采集动作和算法输入出发，检查记录模型、位置关联、数值解释、参数历史和访问方式是否充分，再决定物理布局与性能参数。现有约束作为审计基线，未确认事项不靠历史实验默认值补齐。
+固定 HDF5 2.x；多通道单晶、常规 PA、FMC 共用 `Scan` / `EventDefinition` / `WaveformStream` 和统一 `Frame`。采用固定采集定义、跨流异构/流内固定、PA 唯一帧位置及 FMC 显式 Tx/Rx 矩阵语义；单晶与阵列数据不混存。
 
-1. [扫描场景与算法审计](docs/SCENARIO_AUDIT.md)：讨论主题、设计细节索引和证据记录模板。
-2. [需求与架构决策](docs/DESIGN.md)：已确认的需求、职责及首版边界。
-3. [数据 Spec](docs/DATA_SPEC.md)：唯一数据契约来源，含参考 HDF5 映射与待定项。
-4. [验证计划](docs/SPEC_TEST_PLAN.md)：将场景证据转成可核查的正反例；测试尚未执行。
+1. [需求与架构决策](docs/DESIGN.md)：已采纳方向、职责及边界。
+2. [数据 Spec](docs/DATA_SPEC.md)：唯一数据契约来源，含不变量及待定项。
+3. [访问用例规划](docs/ACCESS_USE_CASE_PLAN.md)：Frame/Stream、PA 束、FMC 矩阵选择与消费边界，直接追踪项目 UC 用例。
+4. [验证计划](docs/SPEC_TEST_PLAN.md)：H/P/F 独立期望及 UC-01～UC-16，全部 NOT_RUN。
+5. [剩余场景审计](docs/SCENARIO_AUDIT.md)：实际设备、坐标解释、算法负载及运行协议证据。
+
+本次只整合设计，不编写或运行测试。H/P/F 和 UC 是项目内的验收素材，后续才编写可执行用例、选择必要 test-only 编码及推进最小存取工具；不提前冻结产品字段、错误容器或物理参数。文档职责与修改边界见 [设计维护原则](docs/DESIGN.md#integration-policy)，阅读无需额外设计稿或参考网站。
 
 完整导航见 [文档索引](docs/README.md)。历史 benchmark 仅保留[证据局限](docs/BENCHMARK_REPORT.md)，不用于冻结产品参数或宣称生产性能。
 
 ## 仓库组织
 
-- `docs/`：当前审计材料、设计、Spec 和验证计划。
+- `docs/`：当前设计、Spec、访问/验证规划及剩余审计问题。
 - `archive/`：历史参考；只保留一套压缩实验脚本，不是 SDK。
 - `archive/hdf5/`：本地上游检出，保留独立 Git，父仓库忽略。
 - `flake.nix` / `flake.lock`：开发环境入口与锁。
-- `experiments/runs/`：未来新实验的生成结果位置，已忽略；本轮未生成新实验。
+- `experiments/runs/`：未来新实验的生成结果位置，已忽略；本轮未生成样例或实验。
 
 [归档说明](archive/README.md)列出精简范围与 Git 历史入口。本地基准结果、缓存和 HDF5 检出不随父仓库分发；不删除本地结果，也不把它们视为有效验收证据。未来实现时再创建活动源码/测试目录，不向历史归档追加新 SDK。
 
