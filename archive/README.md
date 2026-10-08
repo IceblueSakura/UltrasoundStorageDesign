@@ -1,37 +1,25 @@
 # 归档说明
 
-[返回项目入口](../README.md)。
+[返回项目入口](../README.md)。当前设计与场景审计位于 [docs/](../docs/README.md)，这里不是活动 SDK 或验收测试目录。
 
-本目录保存既有上游检出和历史微基准，与当前 [docs/](../docs/README.md) 设计及后续实现分开。归档是目录迁移，不删除文件，不将历史工具改造成新 SDK，也不表示这里的内容已获 Spec 符合性认证。
+## 1. 本地 HDF5 源码
 
-## 1. HDF5 源码
+`archive/hdf5/` 保留既有上游检出、嵌套 `.git` 和本地文件，父仓库继续忽略；本轮不修改、删除或发布其中内容。它不是 submodule。默认开发环境不依赖该目录，可选本地源码构建方式见[项目说明](../README.md)。
 
-- 路径：`archive/hdf5/`，原位置为仓库根目录的 `hdf5/`。
-- 完整保留嵌套 `.git`、工作树、未跟踪的 `flake.nix` 与 `flake.lock`。
-- 父仓库继续忽略这个检出，不把它作为新 submodule 或 vendor 提交。
-- 根 `flake.nix` 的可选 `hdf5-local` 已指向此路径；默认环境仍按锁定输入构建。
-- 如需本地源码构建，参见[项目环境说明](../README.md)。不通过归档升级依赖或丢弃上游工作树改动。
+## 2. 历史微基准的保留与精简
 
-上游仓库自带文档仍与源码一起保留，不作为当前项目的设计文档迁移到 `docs/`。
+位置：[benchmarks/ultrasound_storage_baseline/](benchmarks/ultrasound_storage_baseline/README.md)。
 
-## 2. 历史微基准
+- 保留 `benchmark_single_channel_compressed.py` 和 `requirements.txt`，仅作历史压缩/单通道实验参考。
+- 移除旧六布局 `benchmark.py`、对应描述性 `candidate_catalog.json` 和已失效的 `MANIFEST.sha256`，不再维护重复候选入口或旧哈希清单。
+- 旧脚本、候选和清单以及精简前的报告均可从 Git 提交 `8acf776` 查看，无需在当前树复制一套备份。
+- 本地 `benchmark_results/`、`benchmark_results_10x/` 下的 JSON/CSV 与缓存不改写、不删除，继续忽略；原结果中的旧路径只是当时运行记录，不保证随克隆分发。
+- 当前文档不再保留数值排名和复跑教程，限制说明集中于 [BENCHMARK_REPORT.md](../docs/BENCHMARK_REPORT.md)。
 
-路径：[benchmarks/ultrasound_storage_baseline/](benchmarks/ultrasound_storage_baseline/README.md)，原位置为根目录的 `ultrasound_storage_baseline/`。
+缩减历史材料不表示剩余脚本获得可靠性或符合性认证。旧脚本曾有的检查也不能转记为当前 Spec 用例已通过。
 
-保留脚本、requirements、候选目录、MANIFEST、现存 JSON/CSV 及 Python 缓存。原目录的五份 Markdown 文档已迁至 `docs/`；候选目录的文档引用已更新，其实验候选参数不变。
+## 3. 使用边界
 
-- [六布局脚本](benchmarks/ultrasound_storage_baseline/benchmark.py)
-- [压缩/单通道脚本](benchmarks/ultrasound_storage_baseline/benchmark_single_channel_compressed.py)
-- [常规结果](benchmarks/ultrasound_storage_baseline/benchmark_results/results.json)
-- [10× 结果](benchmarks/ultrasound_storage_baseline/benchmark_results_10x/results.json)
-- [证据报告](../docs/BENCHMARK_REPORT.md)
+本轮不运行或修复旧基准，不构建上游源码。新样例、只读检查器和 SDK 应建立活动目录，不继承归档中的隐含规则。
 
-原始结果中的路径、时间、参数和统计值保持原样。历史 MANIFEST 保持原字节，包含已经缺失的旧结果和旧文档哈希；不能对迁移后的目录执行它并期待全部通过，也没有伪造新的历史哈希。
-
-本地结果与缓存继续忽略，不自动随父仓库分发。后续归档新实验时应另建有明确来源的目录，不覆盖这些结果。
-
-## 3. 后续工作的边界
-
-新的 Spec 样例、只读检查器、SDK 或测试放到新的活动目录，而不是从归档中直接继承隐含规则。手动重跑旧脚本时输出到 `experiments/runs/` 下的新目录；运行说明与已知风险见[文档索引](../docs/README.md)。
-
-本次不重跑实验、不修复测试行为、不删除缓存，也不 stage、commit 或修改嵌套 Git 历史。
+如以后确需复查历史脚本，先阅读[风险说明](benchmarks/ultrasound_storage_baseline/README.md)，只用新的专用输出目录；不指向真实采集或既有结果。新实验结果建议放在已忽略的 `experiments/runs/`。

@@ -1,49 +1,30 @@
 # UltrasoundStorageDesign
 
-超声采集原始数据存储设计项目。当前已形成逻辑架构和数据 Spec `0.1-draft`，尚未实现生产 SDK、符合性检查器或完整样例。
+超声采集原始数据存储设计项目。当前为逻辑架构与数据 Spec `0.1-draft`，尚未实现生产 SDK、符合性检查器或完整样例。
 
-## 阅读入口
+## 当前重点：扫描场景与算法需求审计
 
-1. [文档索引](docs/README.md)
-2. [需求与架构决策](docs/DESIGN.md)
-3. [初版数据 Spec](docs/DATA_SPEC.md)
-4. [Spec 验证计划](docs/SPEC_TEST_PLAN.md)
-5. [历史基准证据与局限](docs/BENCHMARK_REPORT.md)
+从实际采集动作和算法输入出发，检查记录模型、位置关联、数值解释、参数历史和访问方式是否充分，再决定物理布局与性能参数。现有约束作为审计基线，未确认事项不靠历史实验默认值补齐。
 
-需求理由、数据契约、验证方法和性能证据分别维护，不以历史脚本默认值补全待定需求。
+1. [扫描场景与算法审计](docs/SCENARIO_AUDIT.md)：讨论主题、设计细节索引和证据记录模板。
+2. [需求与架构决策](docs/DESIGN.md)：已确认的需求、职责及首版边界。
+3. [数据 Spec](docs/DATA_SPEC.md)：唯一数据契约来源，含参考 HDF5 映射与待定项。
+4. [验证计划](docs/SPEC_TEST_PLAN.md)：将场景证据转成可核查的正反例；测试尚未执行。
+
+完整导航见 [文档索引](docs/README.md)。历史 benchmark 仅保留[证据局限](docs/BENCHMARK_REPORT.md)，不用于冻结产品参数或宣称生产性能。
 
 ## 仓库组织
 
-```text
-UltrasoundStorageDesign/
-├─ README.md                   项目入口
-├─ docs/                       当前设计、Spec、测试计划和报告
-├─ archive/
-│  ├─ README.md                归档说明与保留边界
-│  ├─ hdf5/                    既有 HDF5 上游检出，保留嵌套 .git
-│  └─ benchmarks/
-│     └─ ultrasound_storage_baseline/
-│        ├─ benchmark*.py      历史实验脚本
-│        ├─ requirements.txt
-│        ├─ candidate_catalog.json
-│        ├─ MANIFEST.sha256    原历史清单，不是当前校验清单
-│        └─ benchmark_results*/ 现存本地结果
-├─ flake.nix                   当前开发环境入口
-└─ flake.lock                  环境锁
-```
+- `docs/`：当前审计材料、设计、Spec 和验证计划。
+- `archive/`：历史参考；只保留一套压缩实验脚本，不是 SDK。
+- `archive/hdf5/`：本地上游检出，保留独立 Git，父仓库忽略。
+- `flake.nix` / `flake.lock`：开发环境入口与锁。
+- `experiments/runs/`：未来新实验的生成结果位置，已忽略；本轮未生成新实验。
 
-[归档说明](archive/README.md)区分上游源码与历史实验。结果、缓存和嵌套仓库继续按原有类别忽略；移动没有使它们自动加入父仓库，也不保证它们随克隆分发。历史 JSON 和 MANIFEST 的内容不改写，记录中的旧路径仅表示当时的运行位置。
-
-未来实现时再创建 `src/`、`tests/`、`tools/` 或 `experiments/`，不预先放置空框架。新的实验源码与可重复的符合性测试不应写入历史归档；生成结果建议使用 `experiments/runs/`，该位置已忽略，不覆盖既往结果。
+[归档说明](archive/README.md)列出精简范围与 Git 历史入口。本地基准结果、缓存和 HDF5 检出不随父仓库分发；不删除本地结果，也不把它们视为有效验收证据。未来实现时再创建活动源码/测试目录，不向历史归档追加新 SDK。
 
 ## 开发环境
 
-从仓库根目录运行：
+从仓库根目录运行 `nix develop`。默认环境使用 flake 声明的 HDF5 构建，不依赖归档检出；本轮未构建或验证运行环境。
 
-```bash
-nix develop
-```
-
-默认环境使用 flake 中声明的 HDF5 构建，不依赖归档检出。可选 `hdf5-local` 源路径已调整为 `archive/hdf5/`。该目录不在父 Git 索引中，若需要本地源码构建，应使用包含工作树的路径 flake，例如 `nix build path:.#hdf5-local`，并确保归档源码存在；Git 源 flake 不包含忽略的本地检出。本次未构建或验证环境运行。
-
-历史脚本的手动运行说明在 [docs/README.md](docs/README.md)，仅用于实验复查，不是生产用法。压缩脚本仍有已记录的覆盖保护缺口，务必选择新的专用输出目录。
+可选 `hdf5-local` 依赖本地 `archive/hdf5/`，Git 源 flake 不包含该忽略目录。需要时使用包含工作树的路径 flake，例如 `nix build path:.#hdf5-local`，并确保源码存在。历史实验的风险说明只在[归档入口](archive/benchmarks/ultrasound_storage_baseline/README.md)维护，不作为推荐工作流。
