@@ -1,6 +1,6 @@
 # UltrasoundStorageDesign
 
-超声采集原始数据存储设计项目。当前处于**测试用例编写前的设计整合阶段**，数据 Spec 为 `0.2-draft`；设计语义、必要机制说明及验收素材均在项目内维护，尚未编写可执行用例或实现生产 SDK、检查器、H/P/F/W 样例。
+通用超声数据存储管理 SDK 设计项目。首版只做基于 HDF5 的文件内管理 **Core**，未来其他能力按 Core + Extensions 扩展。当前处于**测试用例编写前的设计整合阶段**，Spec 为 `0.2-draft`；尚未编写可执行用例或实现 SDK、检查器、H/P/F/W 样例。
 
 ## 当前重点：项目内一致的设计基线
 
@@ -8,13 +8,19 @@
 
 一个文件代表一个工件的扫描集合，允许多个独立 Scan 承载分块扫描、复扫/精扫；每个 Scan 的区域、来源和坐标映射关系保持待决策，不自动拼接或覆盖旧结果。Scan 内定义固定、Frame 轴独立；单写者顺序完成 Scan，整个文件封存后只读。详见 [多 Scan 契约](docs/DATA_SPEC.md#scan-01)。
 
+元信息及位置采用必要公共描述＋带类型/版本内容，不在本阶段完善领域 schema。位置描述 Scan 内固定、每帧一份值，PA 所有声束共用它；其他坐标以额外 dataset 按帧关联。同步读取支持 poll（SDK 内存只读借用，下次读取/关闭时失效）及 push（复制到调用者指定缓冲）。这与分析/Batch 内容交付分别定义；Frame/Batch 优先、A-Scan 次之，单 Frame 不分块，不做位置查询或 update。
+
+波形按[单一有效性位图](docs/DATA_SPEC.md#sta-01)管理：每槽位一位、默认无效；调用者标记有效且通过结构校验的样本原样保存，包括真实全 0。无效槽位零填充，不要求提供或保留其输入样本，不再区分缺失与“有值但业务无效”；读取同时交付位图，不把填充值当真实回波。SDK 不做业务合法性判断，结构/解码/I/O 错误仍报错；位图打包及具体 API 待定。
+
+单读单写、无并发 Reader 或线程安全保证；目标最新 Linux LTS/Windows 10+，优先 Python/.NET Framework 4.8，倾向 C/C++/pybind11，具体绑定待定。写入同步消费调用者输入，无取消，普通写入不立即落盘，显式 Flush 强制落盘。I/O 失败时 push 目标不变、poll 不返回部分新视图且旧借用不延寿；写失败无新增提交且旧数据不变，均报告原因/错误码，不要求崩溃事务。机制待验证，见 [Core 范围](docs/DESIGN.md#core-scope)。
+
 1. [需求与架构决策](docs/DESIGN.md)：已采纳方向、职责及边界。
 2. [数据 Spec](docs/DATA_SPEC.md)：唯一数据契约来源，含不变量及待定项。
-3. [访问用例规划](docs/ACCESS_USE_CASE_PLAN.md)：Frame/Stream、PA 束、FMC 矩阵选择与消费边界，直接追踪项目 UC 用例。
+3. [访问用例规划](docs/ACCESS_USE_CASE_PLAN.md)：分析结果与 Batch 只读视图、Frame/流/PA/FMC 及位置/元信息关联；数据/有效性位图布局及 API 仍待讨论。
 4. [验证计划](docs/SPEC_TEST_PLAN.md)：H/P/F 及多 Scan 工件样例 W 的独立期望、UC-01～UC-19；均未执行，UC-18 映射关系待决策而 BLOCKED，其余 UC 为 NOT_RUN。
 5. [剩余场景审计](docs/SCENARIO_AUDIT.md)：实际设备、坐标解释、算法负载及运行协议证据。
 
-本次只整合设计，不编写或运行测试。H/P/F/W 和 UC 是项目内的验收素材，后续才编写可执行用例、选择必要 test-only 编码及推进最小存取工具；不提前冻结产品字段、错误容器或物理参数。文档职责与修改边界见 [设计维护原则](docs/DESIGN.md#integration-policy)，阅读无需额外设计稿或参考网站。
+本次只整合设计，不编写或运行测试，不做细节调优或部署方案。负载以连续批量写、Frame 随机读及上传 GPU 前的 Batch 读为主，A-Scan 随机读为次级；返回主机指针不等于 GPU 上传、零拷贝或 GPU 解压。H/P/F/W 和 UC 是验收素材，后续才编写可执行用例及推进最小存取工具。文档职责与修改边界见 [设计维护原则](docs/DESIGN.md#integration-policy)。
 
 完整导航见 [文档索引](docs/README.md)。历史 benchmark 仅保留[证据局限](docs/BENCHMARK_REPORT.md)，不用于冻结产品参数或宣称生产性能。
 

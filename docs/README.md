@@ -4,13 +4,15 @@
 
 **当前交付是测试用例编写前的一致设计基线。** Spec 为 `0.2-draft`，有用的设计参考已归入以下项目文档；产品编码、生产参数及实现未冻结。本轮不编写或运行测试。
 
+最终目标为通用超声数据存储管理 SDK，首版只做文件内管理 Core，未来按 Core + Extensions 扩展。同步读取支持 poll 的 SDK 内存借用和 push 的调用者目标复制，与分析/Batch 用途分别定义；Frame 优先、A-Scan 次之，不做帧内分块、update 或写入取消。波形采用单一有效性位图、无效槽位零填充，有效样本原样保存，不另分 payload 存在性与业务有效性。普通写不立即落盘，显式 Flush 强制落盘；批次失败机制、数据/位图布局及接口仍待讨论。本阶段不调优或设计部署，决定见 [Core 范围](DESIGN.md#core-scope)。
+
 ## 阅读顺序与文档职责
 
 | 顺序 | 文档 | 回答的问题 |
 |---|---|---|
 | 1 | [DESIGN.md](DESIGN.md) | 已确认需求是什么，为什么这样划分职责，本轮不做什么？ |
 | 2 | [DATA_SPEC.md](DATA_SPEC.md) | Frame/事件/流、PA/FMC 如何解释，哪些不变量必须成立？ |
-| 3 | [ACCESS_USE_CASE_PLAN.md](ACCESS_USE_CASE_PLAN.md) | 怎样选择和分批消费数据，访问结果如何追溯？ |
+| 3 | [ACCESS_USE_CASE_PLAN.md](ACCESS_USE_CASE_PLAN.md) | 分析/Batch 与 poll/push 如何组合，关联、借用期及数据/有效性位图接口还缺什么？ |
 | 4 | [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md) | H/P/F/W 的独立期望及 UC 集怎样验证，旧 T 项如何适配？ |
 | 5 | [SCENARIO_AUDIT.md](SCENARIO_AUDIT.md) | 具体设备、坐标、算法负载与运行边界还缺什么证据？ |
 | 讨论入口 | [DECISION_DIRECTIONS.md](DECISION_DIRECTIONS.md) | 可以从哪些角度补充事实、选择工程行为或规划取证？按需挑选，不是第二套规范或待定项账本 |
@@ -20,14 +22,15 @@
 
 ## 设计细节快速入口
 
+- [Core 边界](DATA_SPEC.md#core-01)、[元信息组织](DATA_SPEC.md#meta-01)：文件内管理、公共描述与类型/版本内容；完整领域 schema 后置。
 - [逻辑模型](DATA_SPEC.md#logical-model)：Scan、EventDefinition、WaveformStream 与 Frame 身份。
 - [工件容器与多 Scan](DATA_SPEC.md#scan-01)、[Scan 映射关系待定边界](DATA_SPEC.md#scan-02)：独立 Scan 承载分块/复扫/精扫；区域、来源及坐标关系待决策，不自动融合或替代。
 - [固定解释与样本](DATA_SPEC.md#wav-01)：流内 dtype/长度/采样轴固定，跨流异构及无损保存。
-- [状态](DATA_SPEC.md#sta-01)、[位置](DATA_SPEC.md#pos-01)、[固定定义](DATA_SPEC.md#par-01)：观测状态、历史关联与定义复用。
+- [有效性位图](DATA_SPEC.md#sta-01)、[位置](DATA_SPEC.md#pos-01)、[固定定义](DATA_SPEC.md#par-01)：有效样本保真、无效零填充、历史关联与定义复用。
 - [PA 位置](DATA_SPEC.md#pa-01)、[FMC 映射](DATA_SPEC.md#fmc-01)、[矩阵访问](DATA_SPEC.md#fmc-02)：模式语义不由 shape 推测。
 - [HDF5 组织边界](DATA_SPEC.md#map-01)：逻辑职责与物理组织分开，路径尚未冻结。
-- [写入与前缀](DATA_SPEC.md#wrt-01)、[封存](DATA_SPEC.md#lif-01)、[恢复](DATA_SPEC.md#lif-02)：确认边界和明确失败。
-- [读取](DATA_SPEC.md#read-01)、[超 RAM](DATA_SPEC.md#cap-01)、[压缩](DATA_SPEC.md#cmp-01)：访问语义、有界资源与必要解码依赖。
+- [写入与前缀](DATA_SPEC.md#wrt-01)、[Flush](DATA_SPEC.md#wrt-03)、[调用级强原子性](DATA_SPEC.md#io-01)、[封存](DATA_SPEC.md#lif-01)、[恢复](DATA_SPEC.md#lif-02)：成功/失败边界及持久化目标，机制待设计验证。
+- [读取](DATA_SPEC.md#read-01)、[内容交付](DATA_SPEC.md#read-03)、[poll/push 缓冲](DATA_SPEC.md#buf-01)、[超 RAM](DATA_SPEC.md#cap-01)、[压缩](DATA_SPEC.md#cmp-01)：借用/复制、只读等价、Frame/Batch 优先与有界资源。
 - [统一不变量](DATA_SPEC.md#invariants)、[UC 回归集](SPEC_TEST_PLAN.md#uc-regression)：规则与独立预期追踪。
 - [剩余场景问题](SCENARIO_AUDIT.md)：从真实输入补充证据，不重开已采纳的模型决策。
 
