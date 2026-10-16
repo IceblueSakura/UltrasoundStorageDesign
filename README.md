@@ -1,8 +1,10 @@
 # UltrasoundStorageDesign
 
-通用超声数据存储管理 SDK 设计项目。首版只做基于 HDF5 的文件内管理 **Core**，未来其他能力按 Core + Extensions 扩展。当前处于**测试用例编写前的设计整合阶段**，Spec 为 `0.2-draft`；尚未编写可执行用例或实现 SDK、检查器、H/P/F/W 样例。
+通用超声数据存储管理 SDK 设计项目。首版只做基于 HDF5 的文件内管理 **Core**，未来其他能力按 Core + Extensions 扩展。**当前逻辑设计基线已收束，首版工程合同仍待闭合**；Spec 保持 `0.2-draft`，正式格式/API 未冻结，尚未编写可执行用例或实现 SDK、检查器、H/P/F/W 样例。
 
-## 当前重点：项目内一致的设计基线
+## 当前重点：基线收束与待决策事项
+
+本轮收束不新增产品能力、不将推荐方案视为决定，也不宣称实现可行性或运行验收通过。下一步从[待决策问题清单](docs/DECISION_DIRECTIONS.md#decision-order)推进：先明确故障/Flush、位置异常、接口与绑定等行为，再以最小实现验证高风险机制，随后冻结正式文件/API 并进行初版验收。详见[收束结论](docs/DESIGN.md#baseline-closure)及[阶段门禁](docs/SPEC_TEST_PLAN.md#milestones)。
 
 固定 HDF5 2.x；多通道单晶、常规 PA、FMC 共用 `Scan` / `EventDefinition` / `WaveformStream` 和统一 `Frame`。采用固定采集定义、跨流异构/流内固定、PA 唯一帧位置及 FMC 显式 Tx/Rx 矩阵语义；单晶与阵列数据不混存。
 
@@ -19,8 +21,9 @@
 3. [访问用例规划](docs/ACCESS_USE_CASE_PLAN.md)：分析结果与 Batch 只读视图、Frame/流/PA/FMC 及位置/元信息关联；数据/有效性位图布局及 API 仍待讨论。
 4. [验证计划](docs/SPEC_TEST_PLAN.md)：H/P/F 及多 Scan 工件样例 W 的独立期望、UC-01～UC-19；均未执行，UC-18 映射关系待决策而 BLOCKED，其余 UC 为 NOT_RUN。
 5. [剩余场景审计](docs/SCENARIO_AUDIT.md)：实际设备、坐标解释、算法负载及运行协议证据。
+6. [待决策问题与建议](docs/DECISION_DIRECTIONS.md)：按优先级列出问题、选项、影响与需要补充的材料；正式登记仍以 DATA_SPEC 的 D 项为准。
 
-本次只整合设计，不编写或运行测试，不做细节调优或部署方案。负载以连续批量写、Frame 随机读及上传 GPU 前的 Batch 读为主，A-Scan 随机读为次级；返回主机指针不等于 GPU 上传、零拷贝或 GPU 解压。H/P/F/W 和 UC 是验收素材，后续才编写可执行用例及推进最小存取工具。文档职责与修改边界见 [设计维护原则](docs/DESIGN.md#integration-policy)。
+本次只收束设计并整理待决策问题，不编写或运行产品测试，不做细节调优或部署方案。负载以连续批量写、Frame 随机读及上传 GPU 前的 Batch 读为主，A-Scan 随机读为次级；返回主机指针不等于 GPU 上传、零拷贝或 GPU 解压。H/P/F/W 和 UC 是验收素材，后续才推进最小存取工具与可执行验证。文档职责与修改边界见 [设计维护原则](docs/DESIGN.md#integration-policy)。
 
 完整导航见 [文档索引](docs/README.md)。历史 benchmark 仅保留[证据局限](docs/BENCHMARK_REPORT.md)，不用于冻结产品参数或宣称生产性能。
 

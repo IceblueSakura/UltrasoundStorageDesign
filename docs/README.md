@@ -2,7 +2,7 @@
 
 [返回项目入口](../README.md)。
 
-**当前交付是测试用例编写前的一致设计基线。** Spec 为 `0.2-draft`，有用的设计参考已归入以下项目文档；产品编码、生产参数及实现未冻结。本轮不编写或运行测试。
+**当前逻辑设计基线已收束，首版工程合同仍待闭合。** Spec 保持 `0.2-draft`；产品编码、API/ABI 和物理参数未冻结。本轮只整理设计、待决策问题及阶段门禁，不实现 SDK 或运行产品测试。收束范围见 [DESIGN](DESIGN.md#baseline-closure)，不代表任何运行验证通过。
 
 最终目标为通用超声数据存储管理 SDK，首版只做文件内管理 Core，未来按 Core + Extensions 扩展。同步读取支持 poll 的 SDK 内存借用和 push 的调用者目标复制，与分析/Batch 用途分别定义；Frame 优先、A-Scan 次之，不做帧内分块、update 或写入取消。波形采用单一有效性位图、无效槽位零填充，有效样本原样保存，不另分 payload 存在性与业务有效性。普通写不立即落盘，显式 Flush 强制落盘；批次失败机制、数据/位图布局及接口仍待讨论。本阶段不调优或设计部署，决定见 [Core 范围](DESIGN.md#core-scope)。
 
@@ -15,7 +15,7 @@
 | 3 | [ACCESS_USE_CASE_PLAN.md](ACCESS_USE_CASE_PLAN.md) | 分析/Batch 与 poll/push 如何组合，关联、借用期及数据/有效性位图接口还缺什么？ |
 | 4 | [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md) | H/P/F/W 的独立期望及 UC 集怎样验证，旧 T 项如何适配？ |
 | 5 | [SCENARIO_AUDIT.md](SCENARIO_AUDIT.md) | 具体设备、坐标、算法负载与运行边界还缺什么证据？ |
-| 讨论入口 | [DECISION_DIRECTIONS.md](DECISION_DIRECTIONS.md) | 可以从哪些角度补充事实、选择工程行为或规划取证？按需挑选，不是第二套规范或待定项账本 |
+| 决策入口 | [DECISION_DIRECTIONS.md](DECISION_DIRECTIONS.md) | 哪些问题优先决定，候选方案及影响是什么，需要哪些输入？建议未自动采纳，不是第二套规范或待定项账本 |
 | 参考 | [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md) | 为什么历史测量不足以决定生产布局和性能？ |
 
 文档按 [设计维护原则](DESIGN.md#integration-policy)分工：需求与理由只在 DESIGN 维护，活动契约、必要机制解释与 D 项只在 DATA_SPEC 维护；访问/测试规划不能反向新增规范。每项规则有一个维护位置，其他文档只作项目内引用与追踪。
@@ -36,7 +36,9 @@
 
 ## 本轮使用方式
 
-若要先选择后续补充方向，可从[待决策方向导航](DECISION_DIRECTIONS.md#角度导航)挑选部分主题；D 项及其阶段闭合依据仍只在 [DATA_SPEC](DATA_SPEC.md#closure-gates) 维护，不因选定主题而自动启动实现或测试。
+后续从[决策顺序](DECISION_DIRECTIONS.md#decision-order)选择一组问题，结合[角度导航](DECISION_DIRECTIONS.md#角度导航)补充事实并讨论选项。D 项及其阶段闭合依据仍只在 [DATA_SPEC](DATA_SPEC.md#closure-gates) 维护；优先级不等于已作出决定，也不自动启动实现或测试。
+
+正式格式/API 冻结前先取得写入旧数据保护、Flush 和绑定生命周期的小规模可行性证据；完整规模/故障覆盖及声明平台的 SDK 验收在 M3 汇总。推进顺序和唯一验收出口见 [里程碑](SPEC_TEST_PLAN.md#milestones)及 [Core 初版验收门禁](SPEC_TEST_PLAN.md#core-acceptance)。不得把临时工具可运行当成 SDK 已验收。
 
 先核对 DESIGN 的范围、DATA_SPEC 的逻辑契约与访问规划，再使用 SPEC_TEST_PLAN 中的 H/P/F/W、UC 素材及 T 追踪编写后续用例。具体设备或算法的剩余问题使用[审计记录模板](SCENARIO_AUDIT.md#6-审计记录与收敛方法)记录；A/B/C/D 显示名称、帧位置或共同 Frame 本身不等于空间拓扑、物理同步或算法正确性。
 
