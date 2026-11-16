@@ -4,6 +4,7 @@ result
 result-*
 .direnv/
 .cache/
+testdata/
 
 # Python
 __pycache__/

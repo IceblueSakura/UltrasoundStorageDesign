@@ -21,6 +21,9 @@
             hash = "sha256-Tp2f8jJjVst0Fd07Wt4+EzjHRRI+8TlD1uWD9sDTw4g=";
           };
           patches = [ ];
+          # HDF5 2.x renamed the zlib option and defaults it to OFF; without it the
+          # built-in deflate (gzip) filter is missing.
+          cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DHDF5_ENABLE_ZLIB_SUPPORT=ON" ];
           postPatch = (old.postPatch or "") + ''
             for f in src/CMakeLists.txt hl/src/CMakeLists.txt c++/src/CMakeLists.txt hl/c++/src/CMakeLists.txt fortran/src/CMakeLists.txt hl/fortran/src/CMakeLists.txt; do
               if [ -f "$f" ]; then
