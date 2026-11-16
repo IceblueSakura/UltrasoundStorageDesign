@@ -1,44 +1,32 @@
 # UltrasoundStorageDesign
 
-通用超声数据存储管理 SDK 设计项目。首版只做基于 HDF5 的文件内管理 **Core**，未来其他能力按 Core + Extensions 扩展。**当前逻辑设计基线已收束，首版工程合同仍待闭合**；Spec 保持 `0.2-draft`，正式格式/API 未冻结，尚未编写可执行用例或实现 SDK、检查器、H/P/F/W 样例。
+超声数据专用的规范化存取 SDK 设计项目。状态：已承接 UMS 确认的阶段性业务基线，仍处于 Craft 阶段；Spec `0.3-draft`，完整模型、格式/API 与首发范围未冻结，尚无产品 SDK。
 
-## 当前重点：基线收束与待决策事项
+从 UMS 实际需求完善，后续作为包含 schema 和访问能力的单一产品独立维护并开源。当前范围：
 
-本轮收束不新增产品能力、不将推荐方案视为决定，也不宣称实现可行性或运行验收通过。下一步从[待决策问题清单](docs/DECISION_DIRECTIONS.md#decision-order)推进：先明确故障/Flush、位置异常、接口与绑定等行为，再以最小实现验证高风险机制，随后冻结正式文件/API 并进行初版验收。详见[收束结论](docs/DESIGN.md#baseline-closure)及[阶段门禁](docs/SPEC_TEST_PLAN.md#milestones)。
+- **超声数据**：原始波形、解释已有数据必需的模式参数与硬件/几何信息、必要数据关系、C 扫特征值快照；支持全波、仅特征和混合保留。见 [业务范围](docs/DATA_SPEC.md#bus-01)与[保留内容](docs/DATA_SPEC.md#ret-01)。
+- **基础能力**：规范数据子集提取与读取、底层来源与顶层代表访问、文件输入的明确窗口内基础幅值和位置/时间取值。布局规划用于确定存取优化重点，不限制其它布局，也不做复杂处理或额外转换。见 [访问](docs/DATA_SPEC.md#access-01)与[基础取值](docs/DATA_SPEC.md#meas-01)。
+- **快照与保护**：允许重开后新增/替换指定快照；原始采集事实不变，失败保留旧成果。见 [SNAP-01](docs/DATA_SPEC.md#snap-01)。
+- **明确排除**：UI/Workflow/设备控制、扫描复现、激光点云、标注与缺陷分析成果、复杂分析和额外导出/成果打包。
+- **仍待细化**：必要关系、参数范围、优先布局、代表波形规则、基础取值含义和快照组织；混合扫描范围暂不确定。见 [待定项](docs/DATA_SPEC.md#open-items)。
 
-固定 HDF5 2.x；多通道单晶、常规 PA、FMC 共用 `Scan` / `EventDefinition` / `WaveformStream` 和统一 `Frame`。采用固定采集定义、跨流异构/流内固定、PA 唯一帧位置及 FMC 显式 Tx/Rx 矩阵语义；单晶与阵列数据不混存。
+既有 HDF5、流组/Frame、poll/push 等工程设计在适用的原始波形 Core 路径中保留，不等于所有新能力的实现已确定。本次仅同步文档，不修改或运行既往实验代码、测试及 benchmark；旧证据不外推到新增能力。当前不规划许可证或定版 API。
 
-一个文件代表一个工件的扫描集合，允许多个独立 Scan 承载分块扫描、复扫/精扫；每个 Scan 的区域、来源和坐标映射关系保持待决策，不自动拼接或覆盖旧结果。Scan 内定义固定、Frame 轴独立；单写者顺序完成 Scan，整个文件封存后只读。详见 [多 Scan 契约](docs/DATA_SPEC.md#scan-01)。
-
-元信息及位置采用必要公共描述＋带类型/版本内容，不在本阶段完善领域 schema。位置描述 Scan 内固定、每帧一份值，PA 所有声束共用它；其他坐标以额外 dataset 按帧关联。同步读取支持 poll（SDK 内存只读借用，下次读取/关闭时失效）及 push（复制到调用者指定缓冲）。这与分析/Batch 内容交付分别定义；Frame/Batch 优先、A-Scan 次之，单 Frame 不分块，不做位置查询或 update。
-
-波形按[单一有效性位图](docs/DATA_SPEC.md#sta-01)管理：每槽位一位、默认无效；调用者标记有效且通过结构校验的样本原样保存，包括真实全 0。无效槽位零填充，不要求提供或保留其输入样本，不再区分缺失与“有值但业务无效”；读取同时交付位图，不把填充值当真实回波。SDK 不做业务合法性判断，结构/解码/I/O 错误仍报错；位图打包及具体 API 待定。
-
-单读单写、无并发 Reader 或线程安全保证；目标最新 Linux LTS/Windows 10+，优先 Python/.NET Framework 4.8，倾向 C/C++/pybind11，具体绑定待定。写入同步消费调用者输入，无取消，普通写入不立即落盘，显式 Flush 强制落盘。I/O 失败时 push 目标不变、poll 不返回部分新视图且旧借用不延寿；写失败无新增提交且旧数据不变，均报告原因/错误码，不要求崩溃事务。机制待验证，见 [Core 范围](docs/DESIGN.md#core-scope)。
-
-1. [需求与架构决策](docs/DESIGN.md)：已采纳方向、职责及边界。
-2. [数据 Spec](docs/DATA_SPEC.md)：唯一数据契约来源，含不变量及待定项。
-3. [访问用例规划](docs/ACCESS_USE_CASE_PLAN.md)：分析结果与 Batch 只读视图、Frame/流/PA/FMC 及位置/元信息关联；数据/有效性位图布局及 API 仍待讨论。
-4. [验证计划](docs/SPEC_TEST_PLAN.md)：H/P/F 及多 Scan 工件样例 W 的独立期望、UC-01～UC-19；均未执行，UC-18 映射关系待决策而 BLOCKED，其余 UC 为 NOT_RUN。
-5. [剩余场景审计](docs/SCENARIO_AUDIT.md)：实际设备、坐标解释、算法负载及运行协议证据。
-6. [待决策问题与建议](docs/DECISION_DIRECTIONS.md)：按优先级列出问题、选项、影响与需要补充的材料；正式登记仍以 DATA_SPEC 的 D 项为准。
-
-本次只收束设计并整理待决策问题，不编写或运行产品测试，不做细节调优或部署方案。负载以连续批量写、Frame 随机读及上传 GPU 前的 Batch 读为主，A-Scan 随机读为次级；返回主机指针不等于 GPU 上传、零拷贝或 GPU 解压。H/P/F/W 和 UC 是验收素材，后续才推进最小存取工具与可执行验证。文档职责与修改边界见 [设计维护原则](docs/DESIGN.md#integration-policy)。
-
-完整导航见 [文档索引](docs/README.md)。历史 benchmark 仅保留[证据局限](docs/BENCHMARK_REPORT.md)，不用于冻结产品参数或宣称生产性能。
+已采纳决定的背景与证据见 [ADR](docs/decisions/README.md)，尚未决定的问题见 [待决策问题](docs/DECISION_DIRECTIONS.md)，完整导航见 [文档索引](docs/README.md)。
 
 ## 仓库组织
 
-- `docs/`：当前设计、Spec、访问/验证规划及剩余审计问题。
-- `archive/`：历史参考；只保留一套压缩实验脚本，不是 SDK。
-- `archive/hdf5/`：本地上游检出，保留独立 Git，父仓库忽略。
+- `docs/`：设计、Spec、ADR、访问/验证规划及场景审计。
+- `experiments/m1/`：临时的 test-only 原型、机制探针与核对脚本，见其 [README](experiments/m1/README.md) 与 [报告](experiments/m1/REPORT.md)；不是 SDK，编码不是产品格式。
+- `experiments/runs/`：实验生成结果，已忽略。
+- `testdata/`：本地临时测试数据，已忽略，不作为设计依据。
+- `archive/`：历史参考；只保留一套压缩实验脚本，不是 SDK。`archive/hdf5/` 是本地上游检出，父仓库忽略。
 - `flake.nix` / `flake.lock`：开发环境入口与锁。
-- `experiments/runs/`：未来新实验的生成结果位置，已忽略；本轮未生成样例或实验。
 
-[归档说明](archive/README.md)列出精简范围与 Git 历史入口。本地基准结果、缓存和 HDF5 检出不随父仓库分发；不删除本地结果，也不把它们视为有效验收证据。未来实现时再创建活动源码/测试目录，不向历史归档追加新 SDK。
+[归档说明](archive/README.md)列出精简范围与 Git 历史入口。本地基准结果、缓存和 HDF5 检出不随父仓库分发，也不视为有效验收证据。
 
 ## 开发环境
 
-从仓库根目录运行 `nix develop`。默认环境使用 flake 声明的 HDF5 构建，不依赖归档检出；本轮未构建或验证运行环境。
+从仓库根目录运行 `nix develop`。默认环境使用 flake 声明的 HDF5 2.x 构建（含 zlib/deflate），不依赖归档检出。
 
-可选 `hdf5-local` 依赖本地 `archive/hdf5/`，Git 源 flake 不包含该忽略目录。需要时使用包含工作树的路径 flake，例如 `nix build path:.#hdf5-local`，并确保源码存在。历史实验的风险说明只在[归档入口](archive/benchmarks/ultrasound_storage_baseline/README.md)维护，不作为推荐工作流。
+可选 `hdf5-local` 依赖本地 `archive/hdf5/`，Git 源 flake 不包含该忽略目录。需要时使用包含工作树的路径 flake，例如 `nix build path:.#hdf5-local`，并确保源码存在。历史实验的风险说明只在[归档入口](archive/benchmarks/ultrasound_storage_baseline/README.md)维护。
