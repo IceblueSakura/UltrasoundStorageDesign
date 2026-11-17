@@ -15,8 +15,9 @@
 | [ADR-0009](0009-review-contract-clarifications.md) | 首版 Tx×Rx 矩阵限于单个流组；SDK 检测并拒绝同一文件上的 Writer 与 Reader；失败态时活动的 Scan 封存后保持未完成 | 已采纳 | FMC-01、CORE-01、LIF-01、D-14 |
 | [ADR-0010](0010-public-api-stability.md) | 公开 API 的稳定原则：C ABI 唯一稳定边界、64 位长度与显式缓冲、可扩展参数与预留标志、稳定的错误结果 | 已采纳 | API-01、D-10、D-12 |
 | [ADR-0011](0011-ultrasound-business-boundary.md) | 承接 UMS 阶段业务基线，收敛超声专用 SDK 范围 | 已采纳；业务确认，非实现定版 | BUS-01～MEAS-01、POS-01、D-01/D-09/D-11/D-13/D-16～D-18 |
-| [ADR-0012](0012-basic-access-confirmed-and-deferred.md) | 同类观测仅选有效代表，前沿输出位置/时间与幅值；顺序及算法暂缓 | 已确认部分已采纳，其余待定 | ACCESS-01、MEAS-01、D-17/D-18 |
+| [ADR-0012](0012-basic-access-confirmed-and-deferred.md) | 同类观测仅选有效代表，前沿输出位置/时间与幅值 | 最新有效方向被 ADR-0014 替代，其余边界保留 | ACCESS-01、MEAS-01、D-17/D-18 |
 | [ADR-0013](0013-region-relations-and-subset-scope.md) | 目标区域与复检局部来源关系，五类重点访问及四类子集范围 | 业务范围已采纳，区域信息与模型待定 | REL-01、SCAN-02、ACCESS-01、D-03/D-11/D-17 |
+| [ADR-0014](0014-configurable-selection-and-snapshot-source.md) | 顶层统一指定选择函数、底层完整来源访问；快照实际来源不被当前代表替代 | 已采纳业务边界，函数与配置机制暂缓 | ACCESS-01、SNAP-01、D-16/D-17 |
 
 ADR-0011 明确修订的旧范围以新规则为准；其余工程决定保留原适用范围，不因本轮同步自动成为新增能力的实现方案。旧记录与实验不是新的产品验收证据。
 
