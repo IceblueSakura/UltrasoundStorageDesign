@@ -18,6 +18,7 @@
 | [ADR-0012](0012-basic-access-confirmed-and-deferred.md) | 同类观测仅选有效代表，前沿输出位置/时间与幅值 | 最新有效方向被 ADR-0014 替代，其余边界保留 | ACCESS-01、MEAS-01、D-17/D-18 |
 | [ADR-0013](0013-region-relations-and-subset-scope.md) | 目标区域与复检局部来源关系，五类重点访问及四类子集范围 | 业务范围已采纳，区域信息与模型待定 | REL-01、SCAN-02、ACCESS-01、D-03/D-11/D-17 |
 | [ADR-0014](0014-configurable-selection-and-snapshot-source.md) | 顶层统一指定选择函数、底层完整来源访问；快照实际来源不被当前代表替代 | 已采纳业务边界，函数与配置机制暂缓 | ACCESS-01、SNAP-01、D-16/D-17 |
+| [ADR-0015](0015-cross-system-data-delivery.md) | SDK 面向 UMS 与其他系统承担跨系统数据交付；执行期分发归调用方；单写、封存后读取；跨文件组织暂不规划 | 已采纳业务边界；跨文件组织待 D-19 | BUS-01、REL-01、SCAN-01、D-11/D-19、R-20 |
 
 ADR-0011 明确修订的旧范围以新规则为准；其余工程决定保留原适用范围，不因本轮同步自动成为新增能力的实现方案。旧记录与实验不是新的产品验收证据。
 

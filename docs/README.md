@@ -21,7 +21,7 @@
 
 - [产品边界](DATA_SPEC.md#bus-01)、[保留内容与状态](DATA_SPEC.md#ret-01)、[必要关系与模式解释](DATA_SPEC.md#rel-01)
 - [快照与后续保存](DATA_SPEC.md#snap-01)、[布局/分层/子集访问](DATA_SPEC.md#access-01)、[基础取值](DATA_SPEC.md#meas-01)
-- [本轮确认与修订依据](decisions/0011-ultrasound-business-boundary.md)、[业务细化入口](DECISION_DIRECTIONS.md#business-next)
+- [本轮确认与修订依据](decisions/0011-ultrasound-business-boundary.md)、[跨系统数据交付](decisions/0015-cross-system-data-delivery.md)、[业务细化入口](DECISION_DIRECTIONS.md#business-next)
 - [Core 边界与并发](DATA_SPEC.md#core-01)、[元信息组织](DATA_SPEC.md#meta-01)
 - [逻辑模型](DATA_SPEC.md#logical-model)：Scan、EventDefinition、WaveformStream、StreamGroup 与 Frame 身份
 - [工件容器与多 Scan](DATA_SPEC.md#scan-01)、[Scan 映射关系待定边界](DATA_SPEC.md#scan-02)
