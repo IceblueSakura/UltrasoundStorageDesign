@@ -16,7 +16,7 @@
 | HDF5 从不 fsync；sec2 驱动的 flush 回调为 NULL，Windows 驱动就是 sec2 | `H5FDsec2.c:151`、`H5FDwindows.h:28` |
 | v3 superblock 文件在写者崩溃后，普通只读打开失败；`h5clear` 清除状态标志需要改写文件（2026-10-25 补充：h5clear 所用的 fapl 属性也能只在内存中清除，见决定 7） | `H5Fint.c:2237-2241`、`H5Fint.c:2165-2172` |
 | 写入 → H5Fflush+fsync → 继续追加 → 进程崩溃：已 Flush 的帧读取报错，或在空间复用时**静默错值** | `probes/flush_crash.py` |
-| 同条件下"整 chunk 只写一次 + 尾部 A/B 日志 + 双槽提交记录"恢复出全部已 Flush 帧；SWMR 模式不回收空间，也保住了数据 | `probes/writeonce_journal.py`、`probes/flush_crash.py` |
+| 同条件下"整 chunk 只写一次 + 尾部 A/B 日志 + 双槽提交记录"恢复出全部已 Flush 帧；SWMR 模式不回收空间，探针中也未丢数据（观察到，非保证） | `probes/writeonce_journal.py`、`probes/flush_crash.py` |
 
 ## 决定
 

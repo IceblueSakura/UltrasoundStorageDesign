@@ -1,6 +1,6 @@
 # ADR-0012：基础访问的已定输出与算法暂缓边界
 
-- 状态：部分被 [ADR-0014](0014-configurable-selection-and-snapshot-source.md) 替代；下文“最新有效／到达先后”仅保留为原决定背景，不再作为当前预选方向。候选有效性及前沿输出边界仍有效。
+- 状态：已采纳（2026-11-16），部分被 [ADR-0014](0014-configurable-selection-and-snapshot-source.md) 替代；下文“最新有效／到达先后”仅保留为原决定背景，不再作为当前预选方向。候选有效性及前沿输出边界仍有效。
 - 规则落点：[ACCESS-01](../DATA_SPEC.md#access-01)、[MEAS-01](../DATA_SPEC.md#meas-01)、D-17/D-18。
 - 来源：用户在 ADR-0011 后的交互确认；本次只确认业务边界，不讨论实现。
 

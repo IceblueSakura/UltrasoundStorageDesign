@@ -1,6 +1,6 @@
 # 超声数据 SDK：需求、业务边界与设计规划
 
-状态：UMS 已确认的阶段性业务基线已同步至 Spec `0.3-draft`（[ADR-0011](decisions/0011-ultrasound-business-boundary.md)）；Craft 阶段，只更新设计规划，不改代码或重跑既往实验/测试。
+状态：UMS 已确认的阶段性业务基线已同步至 Spec `0.3-draft`（[ADR-0011](decisions/0011-ultrasound-business-boundary.md)～[ADR-0015](decisions/0015-cross-system-data-delivery.md)）；Craft 阶段，只更新设计规划，不改代码或重跑既往实验/测试。
 
 本文只维护需求、边界和选择理由，不重复字段表与完整接口不变量。数据契约统一在 [DATA_SPEC.md](DATA_SPEC.md)，单项决定的背景与证据在 [ADR](decisions/README.md)，访问规划见 [ACCESS_USE_CASE_PLAN.md](ACCESS_USE_CASE_PLAN.md)，规则覆盖与验证方法见 [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md)。未确认的场景问题集中在 [SCENARIO_AUDIT.md](SCENARIO_AUDIT.md)。历史 benchmark 的证据局限见 [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md)，不作为当前选型结论。
 
@@ -122,7 +122,7 @@ SDK 只面向超声数据的规范存取、必要关系、基础窗口取值及�
 | 物理布局后置 | 逻辑流不必对应一个 dataset，Frame 不必对应一个 group；旧 SPLIT 只是历史参考 | [MAP-01](DATA_SPEC.md#map-01) |
 | 完整 Frame 提交、提交记录、不修订历史 | 提交记录是可见范围的唯一依据，物理块带校验值；不把逻辑闭合包装成 HDF5 事务，HDF5 重写块时可能原地覆写或复用空间 | [WRT-01](DATA_SPEC.md#wrt-01)、[WRT-02](DATA_SPEC.md#wrt-02) |
 | 封存后读取，不做在线文件读取 | 实时显示已有采集内存路径，无需跨进程发布协议；SWMR 只可能作为写入保护的内部机制（MAP-02），不开放增长文件读取 | [LIF-01](DATA_SPEC.md#lif-01) |
-| 异常只读恢复 | 保留原始证据，避免自动修复或续写扩大损失；状态标志只在副本上清除，建议独立进程执行 | [LIF-02](DATA_SPEC.md#lif-02) |
+| 异常只读恢复 | 保留原始证据，避免自动修复或续写扩大损失；状态标志只在副本上或内存中清除，不写回源文件，建议独立进程执行 | [LIF-02](DATA_SPEC.md#lif-02) |
 | 原始 Core 的 Frame/Batch、poll/push、有界内存 | 常规分析与 GPU 上传共享来源；poll SDK 缓冲与 push 调用者缓冲分别管理，单 Frame 不分块，不要求全扫描驻内存 | [READ-01/03](DATA_SPEC.md#read-01)、[BUF-01](DATA_SPEC.md#buf-01)、[CAP-01](DATA_SPEC.md#cap-01) |
 | 显式 Flush 与调用级原子失败 | 普通写入与 Flush 分开；进程崩溃保护来自含已提交数据的块不再重写，Flush 只需把数据交给操作系统，不要求 fsync（ADR-0008）；错误不能只统一返回码而留下未说明的部分成功 | [WRT-03](DATA_SPEC.md#wrt-03)、[IO-01](DATA_SPEC.md#io-01) |
 | CPU 解码基础路径，GPU 解压可选 | GPU 完整编码链兼容性尚无证据，不应成为基本可读性的前提 | [CMP-01](DATA_SPEC.md#cmp-01)、[CMP-02](DATA_SPEC.md#cmp-02) |
@@ -165,7 +165,7 @@ Bitshuffle + LZ4、Blosc2 + Bitshuffle + LZ4 及低级别 Zstd 仅是可探索�
 
 ## 5. 渐进完善与文档职责
 
-当前先细化必要关系、模式解释及快照的业务含义。代表访问的分层与统一指定选择函数、快照实际来源不随代表变化已按 [ADR-0014](decisions/0014-configurable-selection-and-snapshot-source.md) 确认；选择函数及配置机制暂缓，基础取值判据仍等待用户算法参考，混合扫描范围继续暂缓。不把未决细节补成确认规则，不讨论具体实现、许可证或 API 定版。工程议题保留在 [DATA_SPEC.md 第 10 节](DATA_SPEC.md#open-items) 的 D-01～D-18，待对应能力设计时处理；本次不修改或执行既往代码/测试。
+当前先细化必要关系、模式解释及快照的业务含义。代表访问的分层与统一指定选择函数、快照实际来源不随代表变化已按 [ADR-0014](decisions/0014-configurable-selection-and-snapshot-source.md) 确认；选择函数及配置机制暂缓，基础取值判据仍等待用户算法参考，混合扫描范围继续暂缓。不把未决细节补成确认规则，不讨论具体实现、许可证或 API 定版。工程议题保留在 [DATA_SPEC.md 第 10 节](DATA_SPEC.md#open-items) 的 D-01～D-19，待对应能力设计时处理；本次不修改或执行既往代码/测试。
 
 后续工程路线为：业务含义细化 → 对应能力的数据合同 → 必要决策与最小存取/独立检查及机制验证 → 正式文件/API 合同冻结 → 对应范围的 SDK 验收；GPU 解压独立验证。M1 先取得小型工作链路，再扩充 H/P/F/W 和 UC，不要求先搭建全部测试框架。故障模型与提交/Flush 机制先约束布局及生命周期编码；实际 Frame 规模、资源目标和语言绑定并行反馈。详细交付物、验收门禁及执行状态只在 [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md#milestones) 维护。
 

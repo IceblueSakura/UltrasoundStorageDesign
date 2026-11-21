@@ -1,6 +1,6 @@
 # ADR-0001：引入同构流组，统一帧级附加记录
 
-- 状态：已采纳（2026-10-24，Spec 0.3-draft）
+- 状态：已采纳（2026-10-24，Spec 0.3-draft）；适用范围由 [ADR-0011](0011-ultrasound-business-boundary.md) 限定为原始波形 Core：决定 3 的类别限制只描述旧 Core profile（混合范围见 D-13），决定 4 中“原始帧位置必需”改按现行 POS-01（允许无空间位置的记录）
 - 规则落点：[逻辑模型](../DATA_SPEC.md#logical-model)、[WAV-01](../DATA_SPEC.md#wav-01)、[PAR-01](../DATA_SPEC.md#par-01)、[POS-02](../DATA_SPEC.md#pos-02)、[PA-01](../DATA_SPEC.md#pa-01)、[FMC-01](../DATA_SPEC.md#fmc-01)、[MAP-01](../DATA_SPEC.md#map-01)
 - 仍未决定：同文件/同 Scan 的混合解释（D-13）、HMC/PWI/Sparse 与跨流组矩阵（D-14）
 - 补充：[ADR-0009](0009-review-contract-clarifications.md) 把首版 Tx×Rx 矩阵限于单个流组

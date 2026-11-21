@@ -1,6 +1,6 @@
 # ADR-0003：写入必须提交完整有效性位图；样本按数值语义交付
 
-- 状态：已采纳（2026-10-24，Spec 0.3-draft）
+- 状态：已采纳（2026-10-24，Spec 0.3-draft）；适用范围由 [ADR-0011](0011-ultrasound-business-boundary.md) 限定为实际保留的原始波形槽位，保留、缺口、位置与特征状态另按 RET-01
 - 规则落点：[STA-01](../DATA_SPEC.md#sta-01)、[WAV-02](../DATA_SPEC.md#wav-02)、[WRT-01](../DATA_SPEC.md#wrt-01)
 - 仍未决定：位图在接口与文件中的打包和位序（D-08）
 

@@ -1,6 +1,6 @@
 # ADR-0011：以 UMS 已确认需求收敛超声专用 SDK 业务边界
 
-- 状态：已采纳；用户确认阶段业务基线并授权同步独立仓库，冲突以 UMS 当前确认需求为准。
+- 状态：已采纳（2026-11-16）；用户确认阶段业务基线并授权同步独立仓库，冲突以 UMS 当前确认需求为准。
 - 规则落点：[BUS-01](../DATA_SPEC.md#bus-01)、[RET-01](../DATA_SPEC.md#ret-01)、[REL-01](../DATA_SPEC.md#rel-01)、[SNAP-01](../DATA_SPEC.md#snap-01)、[ACCESS-01](../DATA_SPEC.md#access-01)、[MEAS-01](../DATA_SPEC.md#meas-01)、POS-01、D-01/D-09/D-11/D-13/D-16～D-18。
 - 来源：`UltrasoundMicroscopeSystem` 的 `docs/02-subsystems/storage-and-catalog.md` §1–2.1（U63/U64/U69～U72）、`docs/02-subsystems/compute-and-analysis.md` §2.2/2.4，以及用户对此轮整体审阅的确认。源仓库当时为未提交工作树，不把提交版本冒充本次需求内容。
 

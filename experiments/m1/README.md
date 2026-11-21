@@ -1,6 +1,6 @@
 # M1 实验：test-only 原型与机制取证
 
-状态：草案阶段的临时 test-only 实验代码，对应 Spec `0.3-draft`；随设计调整可以重写或删除。不是 SDK，编码不是产品格式，结果见 [REPORT.md](REPORT.md)。
+状态：草案阶段的临时 test-only 实验代码，对应 ADR-0001～0010 时期的 Spec `0.3-draft`；随设计调整可以重写或删除。不是 SDK，编码不是产品格式，结果见 [REPORT.md](REPORT.md)。
 
 本目录用于 M1 阶段取证：以 [MAP-02](../../docs/DATA_SPEC.md#map-02) 的参考机制实现最小写入—封存—读取—恢复链路，检验 [WRT-01/02/03](../../docs/DATA_SPEC.md#wrt-01)、[IO-01](../../docs/DATA_SPEC.md#io-01)、[LIF-01/02](../../docs/DATA_SPEC.md#lif-01)、[BUF-01](../../docs/DATA_SPEC.md#buf-01) 与 [ADR-0004/0005](../../docs/decisions/README.md) 的可实现性。所有路径、记录布局和错误类都是实验约定，不能作为 D-07/D-10 的答案。
 
@@ -23,7 +23,7 @@ experiments/m1/run.sh                 # 全部实验
 experiments/m1/run.sh test_crash      # 单项
 ```
 
-`run.sh` 通过 `nix build` 取得 flake 的 Python/HDF5 2.2 环境、`h5clear`，以及 nixpkgs 默认 h5py（HDF5 1.14）用于可读性核对。测试数据路径默认 `testdata/scan.h5`，可用 `USS_TESTDATA` 覆盖。崩溃实验的帧数与轮数可用 `USS_CRASH_FRAMES`、`USS_CRASH_ITER` 调整。脚本一律以 `python -I` 运行。
+`run.sh` 通过 `nix build` 取得 flake 的 Python/HDF5 2.2 环境、`h5clear`，以及 nixpkgs 默认 h5py（HDF5 1.14）用于可读性核对。测试数据路径默认 `testdata/scan.h5`，可用 `USS_TESTDATA` 覆盖；`testdata/` 被 Git 忽略、不随仓库分发，复跑前需自备数据。1.14 可读性核对使用 `flake.lock` 锁定的 nixpkgs 默认 h5py，复跑前先核对其 HDF5 版本。崩溃实验的帧数与轮数可用 `USS_CRASH_FRAMES`、`USS_CRASH_ITER` 调整。脚本一律以 `python -I` 运行。
 
 ## test-only 文件布局 `uss-m1-test-only` v0
 
