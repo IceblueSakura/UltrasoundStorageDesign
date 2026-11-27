@@ -1,39 +1,34 @@
 # 文档索引
 
-[返回项目入口](../README.md)。状态：已同步 UMS 阶段性业务基线，Spec `0.3-draft`；当前只细化需求，不定版 API，不修改或重跑既往代码/测试。
+[返回项目入口](../README.md)。状态：已依据 [ADR-0001～ADR-0020](decisions/README.md) 完成 Core 首版设计与工程定型（Spec `0.3-draft`）；文档已完成高内聚拆分与合并（拆出 `SDK_CONTRACT.md`，原访问规划与历史基准局限分别并入 `SPEC_TEST_PLAN.md` 与 `SCENARIO_AUDIT.md`）。
 
-## 阅读顺序与文档职责
+## 文档导航与唯一职责
 
-| 顺序 | 文档 | 回答的问题 |
+按 [设计维护原则](DESIGN.md#integration-policy) 与 [ADR-0007](decisions/0007-documentation-structure.md) 分工：每份文档承担单一职责，不重复维护第二套规则。
+
+### 核心设计文档（必读）
+
+| 顺序 | 文档 | 唯一职责 |
 |---|---|---|
-| 1 | [DESIGN.md](DESIGN.md) | 已确认需求是什么，为什么这样划分职责，首版不做什么？ |
-| 2 | [DATA_SPEC.md](DATA_SPEC.md) | 超声业务合同、保留状态、必要解释、快照及基础访问是什么，既有原始 Core 模型如何限定适用范围？ |
-| 3 | [decisions/](decisions/README.md) | 每个已采纳决定的背景、理由、证据与后果 |
-| 4 | [ACCESS_USE_CASE_PLAN.md](ACCESS_USE_CASE_PLAN.md) | 代表/来源访问、子集、快照和基础取值如何覆盖业务场景；哪些仍只是原始 Core 工程路径？ |
-| 5 | [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md) | H/P/F/W 的独立期望、UC 与 T 项怎样验证，里程碑与验收门禁是什么？ |
-| 6 | [SCENARIO_AUDIT.md](SCENARIO_AUDIT.md) | 具体设备、坐标、算法负载与运行边界还缺什么证据？ |
-| 决策入口 | [DECISION_DIRECTIONS.md](DECISION_DIRECTIONS.md) | 尚未决定的问题、候选方案、影响及所需输入 |
-| 参考 | [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md) | 为什么历史测量不足以决定生产布局和性能？ |
+| 1 | [DESIGN.md](DESIGN.md) | 两层架构全景、核心架构决定总览、需求基线（`R-01`–`R-20`）与首版排除范围 |
+| 2 | [DATA_SPEC.md](DATA_SPEC.md) | 唯一权威**数据与存储契约**：逻辑模型、分模式 Schema、位图/位置/快照语义、`MAP-02`+SWMR 耐久与恢复、不变量（`U-01`–`U-16`）与 `D-01`–`D-19` 状态总表 |
+| 3 | [SDK_CONTRACT.md](SDK_CONTRACT.md) | **Core 首版工程合同**：首版交付矩阵、编码 Profile、C11 ABI 与状态机、连续/离散 Batch 与容量查询、C++20 静态单库、`.NET`（`net10.0`/`net48`）绑定与 `1.0` 门禁 |
+| 4 | [DECISION_DIRECTIONS.md](DECISION_DIRECTIONS.md) | 仅列进入 M2 前仍缺的真实设备/负载事实、M2 冻结前细化清单与 M4/后置项 |
+| 决策记录 | [decisions/](decisions/README.md) | `ADR-0001`–`0020`（一页一事），完整记录各项已采纳决定的背景、理由、证据与后果 |
 
-分工按 [设计维护原则](DESIGN.md#integration-policy) 与 [ADR-0007](decisions/0007-documentation-structure.md)：需求与理由在 DESIGN，规则与 D 项只在 DATA_SPEC，决定理由在 ADR；其他文档引用规则编号，不重述规则。
+### 验证与事实审计文档（按需查阅）
 
-## 设计细节快速入口
+| 文档 | 唯一职责 |
+|---|---|
+| [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md) | 访问场景映射与 TFM 边界、`H/P/F/W` 独立数值期望、`UC-01`–`UC-27` 与 `T-01`–`T-24` 验证规划、M0–M4 里程碑与 Core M3 验收门禁 |
+| [SCENARIO_AUDIT.md](SCENARIO_AUDIT.md) | UMS 扫描流程与架构输入留档、设备/算法审计清单与历史微基准证据局限 |
 
-- [产品边界](DATA_SPEC.md#bus-01)、[保留内容与状态](DATA_SPEC.md#ret-01)、[必要关系与模式解释](DATA_SPEC.md#rel-01)
-- [快照与后续保存](DATA_SPEC.md#snap-01)、[布局/分层/子集访问](DATA_SPEC.md#access-01)、[基础取值](DATA_SPEC.md#meas-01)
-- [业务边界（ADR-0011）](decisions/0011-ultrasound-business-boundary.md)、[跨系统数据交付](decisions/0015-cross-system-data-delivery.md)、[业务细化入口](DECISION_DIRECTIONS.md#business-next)
-- [Core 边界与并发](DATA_SPEC.md#core-01)、[元信息组织](DATA_SPEC.md#meta-01)
-- [逻辑模型](DATA_SPEC.md#logical-model)：Scan、EventDefinition、WaveformStream、StreamGroup 与 Frame 身份
-- [工件容器与多 Scan](DATA_SPEC.md#scan-01)、[Scan 映射关系待定边界](DATA_SPEC.md#scan-02)
-- [流组固定解释与样本](DATA_SPEC.md#wav-01)、[有效性位图](DATA_SPEC.md#sta-01)、[位置与帧级附加记录](DATA_SPEC.md#pos-01)、[固定定义](DATA_SPEC.md#par-01)
-- [PA 位置](DATA_SPEC.md#pa-01)、[FMC 映射](DATA_SPEC.md#fmc-01)、[矩阵访问](DATA_SPEC.md#fmc-02)
-- [HDF5 组织边界](DATA_SPEC.md#map-01)、[写入保护参考机制](DATA_SPEC.md#map-02)
-- [提交与写失败态](DATA_SPEC.md#wrt-01)、[提交记录](DATA_SPEC.md#wrt-02)、[Flush](DATA_SPEC.md#wrt-03)、[调用级原子性](DATA_SPEC.md#io-01)、[封存](DATA_SPEC.md#lif-01)、[恢复](DATA_SPEC.md#lif-02)
-- [读取](DATA_SPEC.md#read-01)、[选择层](DATA_SPEC.md#read-02)、[内容交付](DATA_SPEC.md#read-03)、[poll/push 缓冲](DATA_SPEC.md#buf-01)、[超 RAM](DATA_SPEC.md#cap-01)、[压缩](DATA_SPEC.md#cmp-01)
-- [统一不变量](DATA_SPEC.md#invariants)、[待定项](DATA_SPEC.md#open-items)、[UC 回归集](SPEC_TEST_PLAN.md#uc-regression)
+## 契约章节快速入口
 
-## 使用方式
+- **数据与存储契约（`DATA_SPEC.md`）**：
+  - 产品与两层边界：[DOC-01](DATA_SPEC.md#doc-01)、[CORE-01](DATA_SPEC.md#core-01)、[API-01](DATA_SPEC.md#api-01)、[BUS-01](DATA_SPEC.md#bus-01)、[RET-01](DATA_SPEC.md#ret-01)、[REL-01](DATA_SPEC.md#rel-01)、[SNAP-01](DATA_SPEC.md#snap-01)、[ACCESS-01](DATA_SPEC.md#access-01)、[MEAS-01](DATA_SPEC.md#meas-01)
+  - 容器、身份与模式数据：[逻辑模型](DATA_SPEC.md#logical-model)、[SCAN-01/02](DATA_SPEC.md#scan-01)、[REC-01/02](DATA_SPEC.md#rec-01)、[ID-01/02](DATA_SPEC.md#id-01)、[META-01](DATA_SPEC.md#meta-01)、[WAV-01/02](DATA_SPEC.md#wav-01)、[STA-01](DATA_SPEC.md#sta-01)、[POS-01/02](DATA_SPEC.md#pos-01)、[PA-01](DATA_SPEC.md#pa-01)、[PAR-01](DATA_SPEC.md#par-01)、[FMC-01/02](DATA_SPEC.md#fmc-01)
+  - 物理引擎、耐久、读取与追踪：[MAP-01/02](DATA_SPEC.md#map-01)、[WRT-01–03](DATA_SPEC.md#wrt-01)、[IO-01](DATA_SPEC.md#io-01)、[LIF-01/02](DATA_SPEC.md#lif-01)、[READ-01–03](DATA_SPEC.md#read-01)、[BUF-01](DATA_SPEC.md#buf-01)、[CAP-01](DATA_SPEC.md#cap-01)、[CMP-01/02](DATA_SPEC.md#cmp-01)、[VAL-01](DATA_SPEC.md#val-01)、[不变量 U-01–U-16](DATA_SPEC.md#invariants)、[待定项 D-01–D-19](DATA_SPEC.md#open-items)
+- **工程合同与交付规格（`SDK_CONTRACT.md`）**：[交付矩阵](SDK_CONTRACT.md#scope-matrix) · [编码 Profile](SDK_CONTRACT.md#encoding-profile) · [C11 ABI 与状态机](SDK_CONTRACT.md#c-abi-lifecycle) · [Batch 与容量查询](SDK_CONTRACT.md#core-io-batch) · [C++20 与 `.NET` 绑定](SDK_CONTRACT.md#platform-bindings) · [版本与 `1.0` 门禁](SDK_CONTRACT.md#versioning)
 
-先从 [业务细化入口](DECISION_DIRECTIONS.md#business-next) 继续明确未决含义；确认后的规则只写回 DATA_SPEC，理由进入 ADR。当前业务确认不要求重跑旧实验或闭合全部工程项；既有 [里程碑](SPEC_TEST_PLAN.md#milestones) 与 [Core 门禁](SPEC_TEST_PLAN.md#core-acceptance) 保留供后续对应范围使用，不代替新增业务验收。临时工具可运行不等于 SDK 已验收，test-only 编码不是产品格式。
-
-历史脚本与本地结果见[归档说明](../archive/README.md)。
+历史参考与实验入口：[归档说明](../archive/README.md) · [M1 实验说明](../experiments/m1/README.md)。

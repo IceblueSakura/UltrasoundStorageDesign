@@ -1,8 +1,8 @@
 # ADR-0010：公开 API 的稳定原则
 
-- 状态：已采纳（2026-10-25，用户认可）
-- 规则落点：[API-01](../DATA_SPEC.md#api-01)；D-10、D-12
-- 仍未决定：兼容承诺的级别与起始版本、版本与能力查询、ABI 检查门禁、绑定的构建方式、文件格式版本与 API 版本的关系（[决策入口角度 16](../DECISION_DIRECTIONS.md#angle-16)）
+- 状态：已采纳（2026-10-25，用户认可）；实现语言、静态自包含分发、首版 `.NET` 绑定、三套版本解耦与 `1.0` `abidiff` 门禁已由 [ADR-0020](0020-implementation-stack-bindings-and-versioning.md) 补齐
+- 规则落点：[API-01](../DATA_SPEC.md#api-01)、[SDK_CONTRACT.md](../SDK_CONTRACT.md)；D-10、D-12
+- 仍未决定：具体 C11 函数签名与错误码枚举（D-10）、精确 OS/编译器最低版本矩阵（D-12）
 
 ## 背景
 

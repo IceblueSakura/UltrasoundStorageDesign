@@ -1,6 +1,6 @@
 # ADR-0013：确认区域关系、重点访问及子集范围
 
-- 状态：已采纳业务范围（2026-11-16）；区域信息、关系模型及实现继续待定。
+- 状态：已采纳业务范围（2026-11-16）；[ADR-0016](0016-tiered-core-mode-schemas-and-immutable-seal.md) 确立区域为文件内独立实体（D-11）并重申跨文件复检归 D-19。
 - 补充：[ADR-0015](0015-cross-system-data-delivery.md) 把原扫描位于其他文件时的复检关系留待 D-19。
 - 规则落点：[REL-01](../DATA_SPEC.md#rel-01)、[SCAN-02](../DATA_SPEC.md#scan-02)、[ACCESS-01](../DATA_SPEC.md#access-01)、D-03/D-11/D-17。
 - 来源：用户在 ADR-0012 后继续交互确认，不涉及实现设计。

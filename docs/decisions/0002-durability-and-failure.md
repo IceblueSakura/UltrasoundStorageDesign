@@ -1,6 +1,6 @@
 # ADR-0002：Flush 承诺、写失败态、提交记录与校验和
 
-- 状态：已采纳（2026-10-24，Spec 0.3-draft）；决定 1、2 中关于断电、操作系统崩溃与操作系统层同步的部分已被 [ADR-0008](0008-process-crash-scope.md) 替代；参考机制已有 M1 进程崩溃证据（[报告](../../experiments/m1/REPORT.md)），正式选定待 M2
+- 状态：已采纳（2026-10-24，Spec 0.3-draft）；决定 1、2 中关于断电、操作系统崩溃与操作系统层同步的部分已被 [ADR-0008](0008-process-crash-scope.md) 替代；`MAP-02` + 按 Scan SWMR、禁原位重试与空对象边界已由 [ADR-0018](0018-storage-engine-swmr-and-strict-lifecycle.md) 正式选定（多级块索引大文件 SIGKILL 待 M2 复核）
 - 规则落点：[WRT-01](../DATA_SPEC.md#wrt-01)、[WRT-02](../DATA_SPEC.md#wrt-02)、[WRT-03](../DATA_SPEC.md#wrt-03)、[IO-01](../DATA_SPEC.md#io-01)、[LIF-01](../DATA_SPEC.md#lif-01)、[LIF-02](../DATA_SPEC.md#lif-02)、[VAL-01](../DATA_SPEC.md#val-01)、[参考写入保护机制](../DATA_SPEC.md#map-02)
 - 仍未决定：带失败标记封存的编码、重试规则与绑定层失败（D-05/D-07/D-10/D-12）
 - 补充：[ADR-0009](0009-review-contract-clarifications.md) 规定失败态时活动的 Scan 在带失败标记封存后保持未完成

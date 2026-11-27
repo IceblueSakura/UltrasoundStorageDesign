@@ -14,7 +14,7 @@
 - 移除旧六布局 `benchmark.py`、对应描述性 `candidate_catalog.json` 和已失效的 `MANIFEST.sha256`，不再维护重复候选入口或旧哈希清单。
 - 旧脚本、候选和清单以及精简前的报告均可从 Git 提交 `8acf776` 查看，无需在当前树复制一套备份。
 - 本地 `benchmark_results/`、`benchmark_results_10x/` 下的 JSON/CSV 与缓存不改写、不删除，继续忽略；原结果中的旧路径只是当时运行记录，不保证随克隆分发。
-- 当前文档不再保留数值排名和复跑教程，限制说明集中于 [BENCHMARK_REPORT.md](../docs/BENCHMARK_REPORT.md)。
+- 当前文档不再保留数值排名和复跑教程，限制说明集中于 [SCENARIO_AUDIT.md#historical-benchmark-limits](../docs/SCENARIO_AUDIT.md#historical-benchmark-limits)。
 
 缩减历史材料不表示剩余脚本获得可靠性或符合性认证。旧脚本曾有的检查也不能转记为当前 Spec 用例已通过。
 
