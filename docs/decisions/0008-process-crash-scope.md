@@ -1,6 +1,6 @@
 # ADR-0008：持久化只覆盖进程崩溃，不考虑断电与操作系统崩溃
 
-- 状态：已采纳（2026-10-25，用户决定；“系统崩溃”的含义同日确认）；替代 ADR-0002 决定 1、2 中关于断电、操作系统崩溃与操作系统层同步的部分
+- 状态：已采纳（2026-10-25，用户决定）；高频 Flush 不要求 `fsync` 维持有效，[ADR-0021](0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 补充规定低频 `complete_scan`/`seal`/旁路提交强制 `fsync`/`FlushFileBuffers`。
 - 规则落点：[WRT-03](../DATA_SPEC.md#wrt-03)、[IO-01](../DATA_SPEC.md#io-01)、[MAP-02](../DATA_SPEC.md#map-02)、D-05
 
 ## 背景

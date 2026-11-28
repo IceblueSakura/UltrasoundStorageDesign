@@ -1,6 +1,6 @@
 # ADR-0004：并发范围与 poll 借用的结束条件
 
-- 状态：已采纳（2026-10-24，Spec 0.3-draft）
+- 状态：已采纳（2026-10-24，Spec 0.3-draft）；部分被 [ADR-0021](0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 修订（Core C11 ABI 砍去 `poll` 借用，且只读数据 I/O 改为锁内查偏移、锁外独立句柄并发 `pread`/`ReadFile`）。
 - 规则落点：[CORE-01](../DATA_SPEC.md#core-01)、[BUF-01](../DATA_SPEC.md#buf-01)；需求 [R-14](../DESIGN.md#r-14)
 - 仍未决定：各绑定的受检视图、GC 与关闭行为（D-12）
 - 补充：[ADR-0009](0009-review-contract-clarifications.md) 要求 SDK 自行检测并拒绝同一文件上的 Writer 与 Reader

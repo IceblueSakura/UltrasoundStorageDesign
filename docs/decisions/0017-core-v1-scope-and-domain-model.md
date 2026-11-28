@@ -1,6 +1,6 @@
 # ADR-0017：Core 首版范围、数据模型细化与可配置物理分块
 
-- 状态：已采纳（2026-11-27）；定型 Core 首版业务模型与分块策略，wire 编码与字段名在 M2 细化。
+- 状态：已采纳（2026-11-27）；部分由 [ADR-0021](0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 修订与扩展（`wave_and_feature` 归 M4、新增 `ScanGroup`、快照支持 1..N Scan/多次追加/按层状态来源、跨文件复检轻引线、Windows 版本化旁路快照、DICONDE 纠偏 `E2663` 及水浸/2D-TCG 补充）。
 - 规则落点：[DOC-01](../DATA_SPEC.md#doc-01)、[REL-01](../DATA_SPEC.md#rel-01)、[SCAN-02](../DATA_SPEC.md#scan-02)、[SNAP-01](../DATA_SPEC.md#snap-01)、[META-01](../DATA_SPEC.md#meta-01)、[MAP-01](../DATA_SPEC.md#map-01)、[SDK_CONTRACT.md](../SDK_CONTRACT.md)；收口 `D-03`、`D-04`、`D-09`、`D-11`、`D-16` 架构方向。
 - 来源：用户在 `ADR-0016` 之后开展的一组定型决策（2026-11-27）。
 

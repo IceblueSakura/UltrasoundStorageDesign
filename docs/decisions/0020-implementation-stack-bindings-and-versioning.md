@@ -1,6 +1,6 @@
 # ADR-0020：原生技术栈、静态自包含分发、首版 .NET 绑定与 1.0 兼容门禁
 
-- 状态：已采纳（2026-11-27）；定型 `D-12` 与角度 16 的工程落地策略。
+- 状态：已采纳（2026-11-27）；[ADR-0021](0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 补充跨平台 HDF5 硬加固（`H5dont_atexit`/`H5PLset_loading_state(0)`/低 `glibc`/`/MT`）、将 Windows + `.NET 4.8` 烟雾闭环前移至 M2，并推迟 `abidiff`/SONAME 至 `1.0-rc`。
 - 规则落点：[API-01](../DATA_SPEC.md#api-01)、[SDK_CONTRACT.md](../SDK_CONTRACT.md)；细化 [ADR-0010](0010-public-api-stability.md)，收口 `D-12` 与版本兼容策略。
 - 来源：用户在 `ADR-0010` 基础上对实现语言、绑定交付顺序、打包形态与版本演进的拍板（2026-11-27）。
 

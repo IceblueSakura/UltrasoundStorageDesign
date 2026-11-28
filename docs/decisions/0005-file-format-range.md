@@ -1,6 +1,6 @@
 # ADR-0005：写出文件限定为 HDF5 1.10–1.14 可读的格式
 
-- 状态：已采纳（2026-10-24，Spec 0.3-draft）
+- 状态：已采纳（2026-10-24，Spec 0.3-draft）；[ADR-0021](0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 保留 `v1.10–v1.14` 写出限制，但取消 HDF5 1.14 独立读取器双实现强制门禁。
 - 规则落点：[DOC-01](../DATA_SPEC.md#doc-01)、[MAP-01](../DATA_SPEC.md#map-01)、D-07
 - 仍未决定：具体标识、路径、字符串与位图编码（D-07）
 

@@ -1,6 +1,6 @@
 # ADR-0018：正式写入保护机制（MAP-02 + 按 Scan SWMR）、严格空对象与故障边界
 
-- 状态：已采纳（2026-11-27）；定型 P0 写入保护、生命周期空对象边界与故障原子性合同。
+- 状态：部分被 [ADR-0021](0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 替代（2026-11-28）：砍去按 Scan SWMR 与内嵌 `journal/` 改用外部临时 `.wal`，增加 `cancel_empty_scan()` 修复 `N==0` 死锁，禁止 `seal_with_failure` 补写未 Flush 尾部，低频边界强制 `fsync`，`LIF-02` 强制独立恢复子进程隔离，明示 `push` `staging_budget`。
 - 规则落点：[MAP-02](../DATA_SPEC.md#map-02)、[WRT-01](../DATA_SPEC.md#wrt-01)、[IO-01](../DATA_SPEC.md#io-01)、[LIF-01](../DATA_SPEC.md#lif-01)、[LIF-02](../DATA_SPEC.md#lif-02)、[SDK_CONTRACT.md](../SDK_CONTRACT.md)；收口 `D-05`、`D-10` 核心机制。
 - 来源：用户在 `ADR-0002`、`ADR-0008`、`ADR-0009` 与 M1 实验证据基础上的 P0 机制定型（2026-11-27）。
 

@@ -1,12 +1,12 @@
 # 扫描场景、负载事实审计与历史基准局限
 
-状态：已依据 [ADR-0001～ADR-0020](decisions/README.md) 完成 Core 首版定型，并合并原历史基准局限说明；`A-01`（UMS 扫描流程）与 `A-03～A-07`/`A-12`（UMS 架构收敛输入）均已留档，本文仅作事实证据与审计入口，不新增规范或重跑旧实验。
+状态：已依据 [ADR-0001～ADR-0021](decisions/README.md) 完成 Core 首版定型与减痛重构，并合并原历史基准局限说明；`A-01`（UMS 扫描流程）与 `A-03～A-07`/`A-12`（UMS 架构收敛输入）均已留档，本文仅作事实证据与审计入口，不新增规范或重跑旧实验。
 
-总体架构见 [DESIGN.md](DESIGN.md)，唯一数据契约见 [DATA_SPEC.md](DATA_SPEC.md)，首版工程合同见 [SDK_CONTRACT.md](SDK_CONTRACT.md)，访问场景与验证计划见 [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md)。
+总体架构见 [DESIGN.md](DESIGN.md)，唯一数据契约见 [DATA_SPEC.md](DATA_SPEC.md)，首版工程合同见 [SDK_CONTRACT.md](SDK_CONTRACT.md)，磁盘布局草案见 [WIRE_FORMAT.md](WIRE_FORMAT.md)，访问场景与验证计划见 [SPEC_TEST_PLAN.md](SPEC_TEST_PLAN.md)。
 
 ## 1. 审计范围与既定输入
 
-本轮聚焦实际设备、采集序列、坐标/同步语义与算法消费事实的核对。Core 首版已在 [ADR-0016～0020](decisions/README.md) 完成定型：聚焦单晶与相控阵（预留 `FeatureOnly`/`FMC`）、中立容器 + 轻量 M:N `Region` + Write-Once 伴生/旁路快照、固定列式位置与 `CellCoord`、`MAP-02` + 按 Scan SWMR、`XXH3-64`、`none/shuffle+zstd/shuffle+lz4`、连续/离散按块合并 Batch、C++20 + C11 ABI 静态单库与 `.NET`（`net10.0`/`net48`）首版绑定。若实际设备事实违反这些契约，记录范围冲突并回退 `DESIGN.md`/`DATA_SPEC.md`/`SDK_CONTRACT.md` 修订。
+本轮聚焦实际设备、采集序列、坐标/同步语义与算法消费事实的核对。Core 首版已在 [ADR-0016～0021](decisions/README.md) 完成定型与减痛：聚焦单晶与相控阵全波（`wave_and_feature`/`FeatureOnly`/`FMC` 归 M4）、中立容器 + 轻量 M:N `Region` + 逻辑拼接组 `ScanGroup` + 按 Scan 多次追加伴生快照与版本化旁路派生容器、大块解耦 `frames/meta` 与 `CellCoord` 排序索引、非 SWMR 只写一次 + 外部临时 `.wal` + 低频 `fsync` + 独立恢复子进程、单一 `stored_xxh3`、`none/shuffle+zstd/shuffle+lz4`、锁外并发 `pread` + 极简 `push`-only C11 ABI 静态单库及 `.NET`（`net10.0`/`net48`）首版绑定。若实际设备事实违反这些契约，记录范围冲突并回退 `DESIGN.md`/`DATA_SPEC.md`/`SDK_CONTRACT.md` 修订。
 
 ## 2. 先对齐四种“顺序”
 
@@ -15,20 +15,20 @@
 | Frame 索引 `n` | Scan 内唯一记录身份与权威前缀，无效槽位以 LSB-first `valid=0`＋零填充表达 | 上游位图来源、各模式帧结构与最大帧字节规模（`D-02`） |
 | 设备来源 trigger/event ID | 可选列式 `required`/`nullable` 附加记录，由上游适配层先消化硬件回绕 | 跳号/重复语义、多事件来源说明 |
 | 原始采集位置 | Frame 绑定历史位置，PA 同帧共用 `P_n`，带显式 `pos_valid` 与同步等级 | 参考系、单位与实际同步等级覆盖 |
-| 空间网格/算法顺序 | 可选定长整型 `CellCoord[Frame]`（含无归属标记）原生支持按格索引；离散清单按块合并加速 D 扫；3D 索引归 M4 扩展层 | 往返/蛇形扫描线与五类访问实际权重（`D-03`） |
+| 空间网格/算法顺序 | 可选定长整型 `CellCoord[Frame]`（含无归属标记）+ `complete_scan()` 不可变排序索引实现百 GB `O(log N)` 查回；3D 索引归 M4 扩展层 | 往返/蛇形扫描线与五类访问实际权重（`D-03`） |
 
 位置值相等不合并 Frame，帧相邻不证明空间邻接，共同 Frame 不证明同时激发；采集层保证原始绑定准确性，SDK 不做时间配准。
 
 ## 3. 扫描场景核查
 
-| 主题 | 当前契约入口 | 进入 M2 前需补充的真实设备/业务事实 | 影响边界 |
+| 主题 | 当前契约入口 | 进入 M2 薄切片前需补充的真实设备/业务事实 | 影响边界 |
 |---|---|---|---|
-| A-01 一次扫描的边界 | [SCAN-01/02](DATA_SPEC.md#scan-01)、[LIF-01](DATA_SPEC.md#lif-01)：中立容器、轻量 M:N `Region`、`EndStatus`、拒正常空对象、关闭 `D-15` | UMS 流程已记录见 [ums-scan-flow](#ums-scan-flow)；外部写入方多区域与 `Region` 精确字段需求 | D-11 / D-19 |
-| A-02 轨迹与触发方式 | [REC-01](DATA_SPEC.md#rec-01)、[POS-02](DATA_SPEC.md#pos-02)：记录轴非空间网格，支持可选 `CellCoord` | 非等距触发、往返/蛇形扫描方向、编码器来源与步进-触发时序 | D-02 / D-03 |
+| A-01 一次扫描的边界 | [SCAN-01/02](DATA_SPEC.md#scan-01)、[LIF-01](DATA_SPEC.md#lif-01)：中立容器、轻量 M:N `Region`、`ScanGroup`、`EndStatus`、`cancel_empty_scan`、关闭 `D-15` | UMS 流程已记录见 [ums-scan-flow](#ums-scan-flow)；外部写入方多区域拼接与复检需求 | D-11 / D-19 |
+| A-02 轨迹与触发方式 | [REC-01](DATA_SPEC.md#rec-01)、[POS-02](DATA_SPEC.md#pos-02)：记录轴非空间网格，大块 `frames/meta` + `CellCoord` 排序索引 | 非等距触发、往返/蛇形扫描方向、编码器来源与步进-触发时序 | D-02 / D-03 |
 | A-03 输出与物理测点 | [WAV-01](DATA_SPEC.md#wav-01)、[REL-01](DATA_SPEC.md#rel-01)：单晶/PA 独立 Schema、清晰区分阵元与合成输出 | 首批单晶/PA 设备真实事件—接收输出—通道/声束映射与最大 Frame 字节数 | D-02 / D-09 |
-| A-04 位置及异常 | [POS-01/02](DATA_SPEC.md#pos-01)：无位置合法、`pos_valid=0` 保全有效波形、同步等级、列式附加记录 | 首批设备具体位置结构体与 `nullable` 附加记录清单 | D-01 / D-09 |
-| A-05 已有数据解释 | [REL-01](DATA_SPEC.md#rel-01)、[META-01](DATA_SPEC.md#meta-01)：最小解码核 + DICONDE/NeXus 可选物理表 + 参数化曲面几何 + `VendorExtension` | 单晶/PA 首批设备字段清单与单位核对 | D-09 |
-| A-06 存储阻塞与中断 | [MAP-02](DATA_SPEC.md#map-02)、[WRT-01/03](DATA_SPEC.md#wrt-01)、[LIF-02](DATA_SPEC.md#lif-02)：`MAP-02` + 按 Scan SWMR、Flush 进程崩溃保障、禁重试 | 调用方 Flush 频率、可接受损失窗口与退场超时参数 | D-02 / D-05 |
+| A-04 位置及异常 | [POS-01/02](DATA_SPEC.md#pos-01)：无位置合法、`pos_valid=0` 保全有效波形、编码器逐轴有效掩码、姿态约定、`crs_transforms` | 首批设备具体位置结构体与 `nullable` 附加记录清单 | D-01 / D-09 |
+| A-05 已有数据解释 | [REL-01](DATA_SPEC.md#rel-01)、[META-01](DATA_SPEC.md#meta-01)：C11 强类型最小解码核 + ASTM E2339/E2663 可选物理表（水浸/多探头/2D-TCG/PCS）+ 参数化曲面几何 + `VendorExtension` | 单晶/PA 首批设备字段清单与单位核对 | D-09 |
+| A-06 存储阻塞与中断 | [MAP-02](DATA_SPEC.md#map-02)、[WRT-01/03](DATA_SPEC.md#wrt-01)、[LIF-02](DATA_SPEC.md#lif-02)：非 SWMR + 外部临时 `.wal`、低频 `fsync`、独立子进程隔离恢复、禁重试 | 调用方 Flush 频率、可接受损失窗口与退场超时参数 | D-02 / D-05 |
 
 <a id="ums-scan-flow"></a>
 ### UMS 扫描流程记录（A-01）
@@ -49,7 +49,7 @@
 记录 UMS 本轮架构收敛中与独立存储 SDK 衔接的既定边界与上游工程事实：
 
 1. **原始整数码分叉与 `SignalDescriptor`（A-03 / A-07 → D-02 / D-09）**：UMS 在 `Ingress Decode` 之前分叉落盘，提交紧凑硬件原始位宽码（如 PA 8/16-bit、X1078 原码），离线复用同一 `Ingress Decode`；固定定义须携带完整 `SignalDescriptor`（有效 ADC 位、对齐、端序、零点/比例及 `RawRF / Rectified / AnalyticEnvelope / LogDb` 标签）以保留 ADC 顶格饱和证据。
-2. **参数分层与厂商扩展（A-05 → D-09）**：UMS 参数收口为“最小解码核 + DICONDE/NeXus 强类型可选物理表 + `VendorExtension`”，单次 Scan 内参数结构冻结；以 ASTM DICONDE（E2339/E2738）与 NeXus 作字段完备性核对清单（不采用 DICONDE 二进制编码）。
+2. **参数分层与厂商扩展（A-05 → D-09）**：UMS 参数收口为“最小解码核 + DICONDE/NeXus 强类型可选物理表 + `VendorExtension`”，单次 Scan 内参数结构冻结；以 ASTM DICONDE（**E2339 / E2663**；原笔记所记 E2738 为计算机射线 CR 标准，已于 [ADR-0021](decisions/0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 纠偏）与 NeXus 作字段完备性核对清单（不采用 DICOM 二进制编码）。
 3. **帧号回绕消化与位置同步等级（A-02 / A-04 → D-01 / REC-01）**：UMS 采集适配层内部消化硬件 8/16-bit 回绕并提交单调帧序；位置元数据显式标注同步可靠性等级（`HardwareSynchronized` / `StepAndShootVerified` / `SoftwareTimestampPaired` / `Unavailable`）。
 4. **Scan 特征结构冻结与硬件直出特征（A-01 / A-03 → RET-01 / D-16）**：在线扫描期间冻结输出特征结构（仅允许调整已启用闸门数值参数，增删闸门须停机重准）；“仅特征 + 硬件直出特征”走预留的独立不可变 Schema，封存后不可被离线重算覆盖。
 5. **三档异常退场、`EndStatus` 与 `LIF-02` 联动（A-06 → RET-01 / LIF-01 / LIF-02 / D-05）**：外设故障进程健康时保留重试/另存/显式放弃；主干崩溃退场执行有界超时尽力封存（仅特征不临时转全波），超时或失败后留痕退出，下次启动交存储适配层按 `LIF-02` 显式原地只读核验；`Scan` 显式记录正常/主动提前/故障结束状态并配合空 `Region` 表达缺口。
@@ -62,7 +62,7 @@
 | A-07 波形数值与采样轴 | 原始整数码与 `f32` 按位保真、`SignalDescriptor` 与传播距离模型依赖 | [WAV-01/02](DATA_SPEC.md#wav-01)、`D-02`/`D-09` |
 | A-08 单 Frame 内选择 | 帧内流/声束/样本选择边界，整体拒绝与内存连续性要求 | [READ-02](DATA_SPEC.md#read-02)、`SDK_CONTRACT.md` |
 | A-09 空间显示与重建 | 文件内轻量 M:N `Region`、跨文件复检（`D-19`）与外部坐标重建边界 | [SCAN-02](DATA_SPEC.md#scan-02)、[POS-02](DATA_SPEC.md#pos-02) |
-| A-10 Batch 与算法消费 | 连续/离散按块合并 Batch、每组独立缓冲、`poll` 借用期与 GPU 双缓冲 `push` | [READ-03](DATA_SPEC.md#read-03)、[BUF-01](DATA_SPEC.md#buf-01)、`SDK_CONTRACT.md` |
+| A-10 Batch 与算法消费 | 连续 `push` 读（离散清单 v0.2）、每组独立缓冲、`staging_budget`、锁外并发 `pread` 与 GPU 双缓冲 `push` | [READ-03](DATA_SPEC.md#read-03)、[BUF-01](DATA_SPEC.md#buf-01)、`SDK_CONTRACT.md` |
 | A-11 有效性与可复现性 | LSB-first packed bitset 区分有效全 0 与零填充、四种内容状态与来源追溯 | [STA-01](DATA_SPEC.md#sta-01)、[RET-01](DATA_SPEC.md#ret-01)、[PAR-01](DATA_SPEC.md#par-01) |
 | A-12 执行与资源 | 在线走采集内存 vs 离线走封存文件；全链路峰值内存与吞吐门槛 | [CAP-01](DATA_SPEC.md#cap-01)、[CMP-02](DATA_SPEC.md#cmp-02)、`D-02`/`D-03`/`D-06` |
 

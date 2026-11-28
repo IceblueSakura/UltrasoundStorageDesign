@@ -1,6 +1,6 @@
 # ADR-0019：列式位置编码、位图与编码链 Profile 及 Core 读写合同
 
-- 状态：已采纳（2026-11-27）；定型 `D-01`、`D-02`（dtype）、`D-04`（codec）、`D-07`（校验与编码选型）、`D-08` 与 `D-10`（读接口合同）。
+- 状态：部分被 [ADR-0021](0021-hdf5-simplification-wal-push-only-and-ndt-fixes.md) 修订（2026-11-28）：帧元合并大块解耦并新增 `CellCoord` 排序索引、仅保留 `stored_xxh3`、砍去 C ABI `poll` 与纯选择层、离散帧清单延至 v0.2、明示 `push` `staging_budget`。
 - 规则落点：[WAV-01](../DATA_SPEC.md#wav-01)、[WAV-02](../DATA_SPEC.md#wav-02)、[STA-01](../DATA_SPEC.md#sta-01)、[POS-01/02](../DATA_SPEC.md#pos-01)、[READ-02/03](../DATA_SPEC.md#read-02)、[CMP-01](../DATA_SPEC.md#cmp-01)、[SDK_CONTRACT.md](../SDK_CONTRACT.md)。
 - 来源：用户在 `ADR-0017`/`ADR-0018` 之后对 P1 数据编码与 Core 读写合同的统一拍板（2026-11-27）。
 
